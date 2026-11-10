@@ -1,0 +1,28 @@
+name: Simple CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t python-api .
+
+      - name: Run container
+        run: docker run -d -p 8080:8080 --name api python-api
+
+      - name: Test API
+        run: |
+          sleep 5
+          curl --fail http://localhost:8080/
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f api
